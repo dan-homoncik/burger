@@ -1,27 +1,38 @@
-var burger = require("../models/burger.js");
-var express = require("express");
+var express = require('express');
+var router = express.Router();
 
-var controller = function(app) {
-	app.get('/', function(req, res) {
-		burger.all(function(data) {
-			res.render("index", {
-				burgers: data
-			});
-		});
-	});
 
-	app.post('/', function(req, res) {
-		burger.new('burger_name', req.body.burger, function(data) {
-			res.redirect('/');
-			console.log(req.body.burger);
-		});
-	});
+var burger = require('../models/burger.js');
 
-	app.put('/', function(req, res) {
-		burger.devour('devoured', 1, 'id', req.body.id, function(data) {
-			res.redirect('/');
-		});
-	});
-};
 
-module.exports = controller;
+router.get('/', function(req, res) {
+  burger.all(function(data) {
+    var hbsObject = {
+      burgers: data
+    };
+    res.render('index', hbsObject);
+  });
+});
+
+router.post('/burgers', function(req, res) {
+  burger.insertOne([
+    'burger_name'
+  ], [
+    req.body.burger_name
+  ], function(data) {
+    res.redirect('/');
+  });
+});
+
+router.put('/burgers/:id', function(req, res) {
+  var condition = 'id = ' + req.params.id;
+
+  burger.updateOne({
+    devoured: true
+  }, condition, function(data) {
+    res.redirect('/');
+  });
+});
+
+
+module.exports = router;
